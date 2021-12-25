@@ -25,6 +25,15 @@ def random_color() -> tuple:
     )
 
 
+def random_speed() -> float:
+    return float(random.random() * (max_speed - min_speed) + min_speed)
+
+
+def calc_speed() -> None:
+    for i in range(3):
+        color_speed[i] = (to_color[i] - from_color[i]) / speed
+
+
 pygame.init()
 info_object = pygame.display.Info()
 w, h = info_object.current_w, info_object.current_h
@@ -37,15 +46,13 @@ running = True
 from_color = (0, 0, 0)
 current_color = [0, 0, 0]
 to_color = random_color()
-speed = 3.0
+min_speed = 0.5
+max_speed = 5.0
+# speed - change color from {from_color} to {to_color} in {speed} seconds
+speed = random_speed()
 color_speed = [0.0, 0.0, 0.0]
 current_timer = 0.0
 last_tick = time.time()
-
-
-def calc_speed() -> None:
-    for i in range(3):
-        color_speed[i] = (to_color[i] - from_color[i]) / speed
 
 
 calc_speed()
@@ -73,6 +80,7 @@ while running:
         current_color = list(to_color)
         from_color = to_color
         to_color = random_color()
+        speed = random_speed()
         calc_speed()
     last_tick = now
     screen.fill(round_color(current_color))
