@@ -17,6 +17,12 @@ def round_color(color: list) -> tuple:
     )
 
 
+def reverse_round_color(color: list) -> tuple:
+    return tuple(
+        round(255 - x) for x in color
+    )
+
+
 def random_color() -> tuple:
     return (
         random.randint(0, 255),
@@ -34,6 +40,14 @@ def calc_speed() -> None:
         color_speed[i] = (to_color[i] - from_color[i]) / speed
 
 
+def get_fps(delta_time: float) -> str:
+    try:
+        result = str(round(100 / delta_time) / 100)
+    except ZeroDivisionError:
+        return 'Infinite'
+    return result[:result.index('.') + 3]
+
+
 pygame.init()
 info_object = pygame.display.Info()
 w, h = info_object.current_w, info_object.current_h
@@ -42,7 +56,6 @@ pygame.display.set_icon(pygame.image.load(p('favicon.ico')).convert_alpha())
 pygame.display.set_caption('screensaver.py')
 pygame.event.set_grab(True)
 pygame.mouse.set_visible(False)
-running = True
 from_color = (0, 0, 0)
 current_color = [0, 0, 0]
 to_color = random_color()
@@ -52,7 +65,33 @@ max_speed = 5.0
 speed = random_speed()
 color_speed = [0.0, 0.0, 0.0]
 current_timer = 0.0
+aa = True
+font_size = 30
+show_fps = True
+fps_font: pygame.font.Font
+if show_fps:
+    try:
+        fps_font = pygame.font.Font(
+            os.path.join(
+                os.getenv('windir'),
+                'Fonts',
+                'segoescb.ttf'
+            ),
+            font_size
+        )
+    except Exception as err_:
+        if err_:
+            'This check is just to remove warning in PyCharm'
+        show_fps = False
+try:
+    import win32gui
+    win32gui.SetForegroundWindow(int(
+        pygame.display.get_wm_info()['window']
+    ))
+except ImportError:
+    pass
 last_tick = time.time()
+running = True
 
 
 calc_speed()
@@ -84,6 +123,15 @@ while running:
         calc_speed()
     last_tick = now
     screen.fill(round_color(current_color))
+    if show_fps:
+        screen.blit(
+            fps_font.render(
+                f'FPS {get_fps(delta)}',
+                aa,
+                reverse_round_color(current_color)
+            ),
+            (0, 0)
+        )
     pygame.display.flip()
 
 
